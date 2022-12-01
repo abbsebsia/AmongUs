@@ -8,48 +8,54 @@ public class Movement : MonoBehaviour {
     [SerializeField] Camera camera;
     [SerializeField] private float speed = 3;
     [SerializeField] private Rigidbody player;
-    private float fieldOfView;
+
+    public float sensitivityX = 15F;
+    public float sensitivityY = 15F;
+    public float minimumX = -360F;
+    public float maximumX = 360F;
+    public float minimumY = -60F;
+    public float maximumY = 60F;
+    float rotationX = 0F;
+    float rotationY = 0F;
+    Quaternion originalRotation;
 
     void Start() {
-        fieldOfView = camera.fieldOfView;
+        originalRotation = transform.localRotation;
     }
 
     // Update is called once per frame
-    void Update() {
 
-        //Debug.Log("velocity:");
-        //Debug.Log(player.velocity);
-        //Debug.Log("axis:");
-        //Debug.Log(Input.GetAxisRaw("Horizontal"));
-        //Debug.Log(Input.GetAxisRaw("Vertical"));
+    void Update() {
 
         //Get the Screen positions of the object
 
-        float screenWidth = Screen.width;
-        float xDiff = screenWidth / 2.0f - Input.mousePosition.x;
-
-
-
-        Vector2 positionOnScreen = Camera.main.WorldToViewportPoint(camera.transform.position);
-
-        //Get the Screen position of the mouse
-        Vector2 mouseOnScreen = (Vector2)Camera.main.ScreenToViewportPoint(Input.mousePosition);
-        Debug.Log(Input.mousePosition);
-
-        //Get the angle between the points
-        float angle = AngleBetweenTwoPoints(positionOnScreen, mouseOnScreen);
-
-        //Ta Daaa
-        //camera.transform.rotation = Quaternion.Euler(new Vector3(0f, angle));
+        rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+        rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+        rotationX = ClampAngle(rotationX, minimumX, maximumX);
+        rotationY = ClampAngle(rotationY, minimumY, maximumY);
+        Quaternion xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
+        Quaternion yQuaternion = Quaternion.AngleAxis(rotationY, -Vector3.right);   
+        camera.transform.localRotation = originalRotation * xQuaternion * yQuaternion;
     }
 
     private void FixedUpdate() {
-        // Move left right with A and D, 
-        player.velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")) * speed;
+        // Move left right with A and D, forward back with W and S
+        // rotate according to camera local eulerangles?
+        float xVel = Input.GetAxisRaw("Horizontal");
+        float zVel = Input.GetAxisRaw("Vertical");
+        float angle = -camera.transform.localEulerAngles.y * Mathf.Deg2Rad;
+
+        Vector3 velocity = new Vector3(xVel * Mathf.Cos(angle) - zVel * Mathf.Sin(angle), 0, xVel * Mathf.Sin(angle) + zVel * Mathf.Cos(angle)) * speed;
+        player.velocity = velocity;
+        //Debug.Log(xVel);
+        //Debug.Log(zVel);
+        Debug.Log(player.velocity.x);
+        Debug.Log(player.velocity.z);
         camera.transform.position = transform.position;
     }
 
-    private float AngleBetweenTwoPoints(Vector3 a, Vector3 b) {
-        return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
+    private float ClampAngle(float angle, float min, float max) {
+        angle %= 360;
+        return Mathf.Clamp(angle, min, max);
     }
 }
