@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Movement : MonoBehaviour {
     // Start is called before the first frame update
@@ -19,6 +20,11 @@ public class Movement : MonoBehaviour {
     float rotationY = 0F;
     Quaternion originalRotation;
 
+    private float xVel;
+    private float zVel;
+
+    bool isDead = false;
+
     void Start() {
         originalRotation = transform.localRotation;
     }
@@ -28,6 +34,10 @@ public class Movement : MonoBehaviour {
     void Update() {
 
         //Get the Screen positions of the object
+
+        xVel = Input.GetAxisRaw("Horizontal");
+        zVel = Input.GetAxisRaw("Vertical");
+        if (Input.GetMouseButtonDown(0)) Die();
 
         rotationX += Input.GetAxis("Mouse X") * sensitivityX;
         rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
@@ -40,22 +50,27 @@ public class Movement : MonoBehaviour {
 
     private void FixedUpdate() {
         // Move left right with A and D, forward back with W and S
-        // rotate according to camera local eulerangles?
-        float xVel = Input.GetAxisRaw("Horizontal");
-        float zVel = Input.GetAxisRaw("Vertical");
         float angle = -camera.transform.localEulerAngles.y * Mathf.Deg2Rad;
 
         Vector3 velocity = new Vector3(xVel * Mathf.Cos(angle) - zVel * Mathf.Sin(angle), 0, xVel * Mathf.Sin(angle) + zVel * Mathf.Cos(angle)) * speed;
-        player.velocity = velocity;
+        if (player.velocity != velocity) player.velocity = velocity;
         //Debug.Log(xVel);
         //Debug.Log(zVel);
-        Debug.Log(player.velocity.x);
-        Debug.Log(player.velocity.z);
+        //Debug.Log(player.velocity.x);
+        //Debug.Log(player.velocity.z);
         camera.transform.position = transform.position;
     }
 
     private float ClampAngle(float angle, float min, float max) {
         angle %= 360;
         return Mathf.Clamp(angle, min, max);
+    }
+
+    public void Die() {
+        isDead = !isDead;
+        GetComponent<MeshRenderer>().enabled = !isDead; // Invisible
+        GetComponent<BoxCollider>().enabled = !isDead; // No collision
+        GetComponent<Rigidbody>().useGravity = !isDead; // No gravity
+        Debug.Log(isDead);
     }
 }
