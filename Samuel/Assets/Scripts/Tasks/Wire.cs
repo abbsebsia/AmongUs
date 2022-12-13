@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
@@ -82,3 +84,4 @@ public class Wire : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
       _wireTask.CurrentDraggedWire = null;
    }
 }
+  

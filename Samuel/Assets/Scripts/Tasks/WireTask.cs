@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
@@ -7,6 +9,7 @@ public class WireTask : MonoBehaviour {
    public List<Color> _wireColors = new List<Color>();
    public List<Wire> _leftWires = new List<Wire>(); 
    public List<Wire> _rightWires = new List<Wire>();
+   public GameObject taskComplete;
    
    public Wire CurrentDraggedWire;
    public Wire CurrentHoveredWire;
@@ -35,10 +38,14 @@ public class WireTask : MonoBehaviour {
          Color pickedColor = 
           _availableColors[Random.Range(0, _availableColors.Count)];
   
-         int pickedLeftWireIndex = Random.Range(0,_availableLeftWireIndex.Count);
-         int pickedRightWireIndex = Random.Range(0,_availableRightWireIndex.Count);
-         _leftWires[_availableLeftWireIndex[pickedLeftWireIndex]].SetColor(pickedColor);
-         _rightWires[_availableRightWireIndex[pickedRightWireIndex]].SetColor(pickedColor);
+         int pickedLeftWireIndex = Random.Range(0,
+                                   _availableLeftWireIndex.Count);
+         int pickedRightWireIndex = Random.Range(0,
+                                   _availableRightWireIndex.Count);
+         _leftWires[_availableLeftWireIndex[pickedLeftWireIndex]]
+                                           .SetColor(pickedColor);
+         _rightWires[_availableRightWireIndex[pickedRightWireIndex]]
+                                           .SetColor(pickedColor);
        
          _availableColors.Remove(pickedColor);
          _availableLeftWireIndex.RemoveAt(pickedLeftWireIndex);
@@ -57,9 +64,11 @@ public class WireTask : MonoBehaviour {
          }
          if (successfulWires >= _rightWires.Count) {
             Debug.Log("TASK COMPLETED");
+            taskComplete.SetActive(true);
+
          }
          else { 
-            Debug.Log("TASK INCOMPLETED");
+            // Debug.Log("TASK INCOMPLETED");
          }
        
          yield return new WaitForSeconds(0.5f);

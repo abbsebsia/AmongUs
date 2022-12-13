@@ -6,6 +6,7 @@ public class KeypadTask : MonoBehaviour
 {
     public Text _cardCode;
     public Text _inputCode;
+    public GameObject taskComplete;
     public int _codeLength = 5;
     public float _codeResetTimeInSeconds = 0.5f;
     private bool _isResetting = false;
@@ -26,6 +27,7 @@ public class KeypadTask : MonoBehaviour
 
         if (_inputCode.text == _cardCode.text) {
             _inputCode.text = "Correct";
+            taskComplete.SetActive(true);
             StartCoroutine(ResetCode());
         }
         else if (_inputCode.text.Length >= _codeLength) {
