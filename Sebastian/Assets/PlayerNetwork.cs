@@ -6,6 +6,7 @@ using Unity.Netcode;
 public class PlayerNetwork : NetworkBehaviour
 
 {
+    [SerializeField] private Transform spawedObjectPrefab;
     private NetworkVariable<int> randomNumber = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public override void OnNetworkSpawn()
@@ -22,7 +23,9 @@ public class PlayerNetwork : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.T))
         {
-            TestServerRpc();
+           TestServerRpc();
+           
+            TestClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> {0 } } });
             randomNumber.Value = Random.Range(1, 100);
         }
 
@@ -39,6 +42,13 @@ public class PlayerNetwork : NetworkBehaviour
     [ServerRpc]
     private void TestServerRpc()
     {
-        Debug.Log("aadshjadsadadadsadsadsadsads");
+        Transform spawnedObjectTransform = Instantiate(spawedObjectPrefab);
+        spawnedObjectTransform.GetComponent<NetworkObject>().Spawn(true);
+    }
+
+    [ClientRpc]
+    private void TestClientRpc(ClientRpcParams clientRpcParams)
+    {
+        Debug.Log("clinet rpc");
     }
 }
